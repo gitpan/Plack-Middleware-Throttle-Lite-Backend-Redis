@@ -1,0 +1,103 @@
+NAME
+    Plack::Middleware::Throttle::Lite::Backend::Redis - Redis-driven storage
+    backend for Throttle-Lite
+
+VERSION
+    version 0.01
+
+DESCRIPTION
+    This is implemetation of the storage backend for
+    Plack::Middleware::Throttle::Lite. It uses redis-server to hold
+    throttling data, automatically sets expiration time for stored keys to
+    save memory consumption.
+
+SYNOPSYS
+        # inside your app.psgi
+        enable 'Throttle::Lite',
+            backend => [
+                'Redis' => {
+                    server   => 'redis.example.com:6379',
+                    database => 1,
+                    password => 'VaspUtnuNeQuiHesGapbootsewWeonJadacVebEe'
+                }
+            ];
+
+OPTIONS
+    This storage backend must be configured in order to use. All options
+    should be passed as a hash reference. The following options are
+    available to tune it for your needs.
+
+  server
+    A string consist of a hostname (or an IP address) and port number
+    (delimited with a colon) of the redis-server instance to connect to. You
+    have to point either this one or "sock". Warning! This option has lower
+    priority than "sock".
+
+  sock
+    A unix socket path of the redis-server instance to connect to. You have
+    to point either this one or "server". Warning! This option has higher
+    priority than "server".
+
+  database
+    A redis-server database number to store throttling data. Not obligatory
+    option. If this one omitted then value 0 will be assigned.
+
+  password
+    Password string for redis-server's AUTH command to processing any other
+    commands. Optional. Check the redis-server manual for directive
+    *requirepass* if you would to use redis internal authentication.
+
+  reconnect
+    A time (in seconds) to re-establish connection to the redis-server
+    before an exception will be raised. Not required. Default value is 10
+    sec.
+
+  every
+    Interval (in milliseconds) after which will be an attempt to
+    re-establish lost connection to the redis-server. Not required. Default
+    value is 100 ms.
+
+  debug
+    Enables debug information to STDERR, including all interactions with the
+    redis-server. Not required. Default value is 0 (disabled).
+
+METHODS
+  redis
+    Returns a redis connection handle.
+
+  rdb
+    A redis database number to store data.
+
+  init
+    See "ABSTRACT METHODS" in
+    Plack::Middleware::Throttle::Lite::Backend::Abstract
+
+  reqs_done
+    See "ABSTRACT METHODS" in
+    Plack::Middleware::Throttle::Lite::Backend::Abstract
+
+  increment
+    See "ABSTRACT METHODS" in
+    Plack::Middleware::Throttle::Lite::Backend::Abstract
+
+BUGS
+    Please report any bugs or feature requests through the web interface at
+    <https://github.com/Wu-Wu/Plack-Middleware-Throttle-Lite-Backend-Redis/i
+    ssues>
+
+SEE ALSO
+    Redis
+
+    Plack::Middleware::Throttle::Lite
+
+    Plack::Middleware::Throttle::Lite::Backend::Abstract
+
+AUTHOR
+    Anton Gerasimov <chim@cpan.org>
+
+COPYRIGHT AND LICENSE
+    This software is copyright (c) 2013 by Anton Gerasimov.
+
+    This is free software; you can redistribute it and/or modify it under
+    the same terms as the Perl 5 programming language system itself.
+
