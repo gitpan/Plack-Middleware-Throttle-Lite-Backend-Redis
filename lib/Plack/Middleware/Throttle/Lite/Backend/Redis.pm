@@ -9,7 +9,7 @@ use Carp ();
 use parent 'Plack::Middleware::Throttle::Lite::Backend::Abstract';
 use Redis 1.955;
 
-our $VERSION = '0.01'; # VERSION
+our $VERSION = '0.02'; # VERSION
 our $AUTHORITY = 'cpan:CHIM'; # AUTHORITY
 
 __PACKAGE__->mk_attrs(qw(redis rdb));
@@ -19,10 +19,6 @@ sub init {
 
     my $croak = sub { Carp::croak $_[0] };
 
-    if (!defined $args->{server} && !defined $args->{sock}) {
-        $croak->("Settings should include either server or sock parameter!");
-    }
-
     my %options = (
         debug     => $args->{debug}     || 0,
         reconnect => $args->{reconnect} || 10,
@@ -31,20 +27,13 @@ sub init {
 
     $options{password} = $args->{password} if $args->{password};
 
-    if (defined $args->{sock}) {
-        $croak->("Nonexistent redis socket ($args->{sock})!") unless -e $args->{sock} && -S _;
+    my $instance = $self->_parse_instance($args->{instance});
+
+    if ($instance->{unix}) {
+        $croak->("Nonexistent redis socket ($instance->{thru})!") unless -e $instance->{thru} && -S _;
     }
 
-    if (defined $args->{server}) {
-        $croak->("Expected 'hostname:port' for parameter server!") unless $args->{server} =~ /(.*)\:(\d+)/;
-    }
-
-    if (defined $options{sock}) {
-        $options{sock} = $args->{sock};
-    }
-    else {
-        $options{server} = $args->{server};
-    }
+    $options{ $instance->{unix} ? 'sock' : 'server' } = $instance->{thru};
 
     $self->rdb($args->{database} || 0);
 
@@ -53,6 +42,30 @@ sub init {
     $croak->("Cannot get redis handle: $@") if $@;
 
     $self->redis($_handle);
+}
+
+sub _parse_instance {
+    my ($self, $instance) = @_;
+
+    my $params = { unix => 0, thru => '127.0.0.1:6379' };
+
+    # slightly improved piece of code from Redis.pm by Pedro Melo (cpan:MELO)
+    CHANCE: {
+        last CHANCE unless $instance;
+
+        if ($instance =~ m,^(unix:)?(?<socketpath>/.+)$,i) {
+            $params->{thru} = $+{socketpath};
+            $params->{unix} = 1;
+            last CHANCE;
+        }
+        if ($instance =~ m,^((tcp|inet):)?(?<srvname>.+)$,i) {
+            my ($server, $port) = ($+{srvname}, undef);
+            ($server, $port)    = split /:/, $server;
+            $params->{thru}     = lc($server) . ':' . (($port && ($port > 0 && $port <= 65535)) ? $port : '6379');
+        }
+    }
+
+    $params;
 }
 
 sub increment {
@@ -83,7 +96,7 @@ Plack::Middleware::Throttle::Lite::Backend::Redis - Redis-driven storage backend
 
 =head1 VERSION
 
-version 0.01
+version 0.02
 
 =head1 DESCRIPTION
 
@@ -98,7 +111,7 @@ to hold throttling data, automatically sets expiration time for stored keys to s
     enable 'Throttle::Lite',
         backend => [
             'Redis' => {
-                server   => 'redis.example.com:6379',
+                instance => 'redis.example.com:6379',
                 database => 1,
                 password => 'VaspUtnuNeQuiHesGapbootsewWeonJadacVebEe'
             }
@@ -109,16 +122,28 @@ to hold throttling data, automatically sets expiration time for stored keys to s
 This storage backend must be configured in order to use. All options should be passed as a hash reference. The
 following options are available to tune it for your needs.
 
-=head2 server
+=head2 instance
 
-A string consist of a hostname (or an IP address) and port number (delimited with a colon) of the redis-server
-instance to connect to. You have to point either this one or L</sock>.
-B<Warning!> This option has lower priority than L</sock>.
+A string consist of a hostname (or an IP address) and port number (delimited with a colon) or unix socket path
+of the redis-server instance to connect to. Not required. Default value is B<127.0.0.1:6379>. Some usage examples
 
-=head2 sock
+    # tcp/ip redis-servers
+    instance => '';                          # treats as '127.0.0.1:6379'
+    instance => 'TCP:example.com:11230';     # ..as 'example.com:11230'
+    instance => 'tcp:redis.example.org';     # ..as 'redis.example.org:6379'
+    instance => 'redis-db.example.com';      # ..as 'redis-db.example.com:6379'
+    instance => 'tcp:127.0.0.1';             # ..as '127.0.0.1:6379'
+    instance => 'tcp:10.90.90.90:5000';      # ..as '10.90.90.90:5000'
+    instance => '192.168.100.230';           # ..as '192.168.100.230:6379'
+    instance => 'bogus:0'                    # ..as 'bogus:6379' (allowed > 0 and < 65536)
+    instance => 'Inet:172.16.5.4:65000';     # ..as '172.16.5.4:65000'
+    instance => 'bar:-100';                  # ..as 'bar:6379' (allowed > 0 and < 65536)
+    instance => 'baz:70000';                 # ..as 'baz:6379' (allowed > 0 and < 65536) and so on..
 
-A unix socket path of the redis-server instance to connect to. You have to point either this one or L</server>.
-B<Warning!> This option has higher priority than L</server>.
+    # unix sockets might be passed like this
+    instance => 'Unix:/var/foo/Redis.sock';  # this socket path '/var/foo/Redis.sock'
+    instance => '/bar/tmp/redis/sock';       # ..as '/bar/tmp/redis/sock',
+    instance => 'unix:/var/foo/redis.sock';  # ..as '/var/foo/redis.sock',
 
 =head2 database
 

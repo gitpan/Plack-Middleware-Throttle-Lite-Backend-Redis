@@ -64,7 +64,7 @@
    "provides" : {
       "Plack::Middleware::Throttle::Lite::Backend::Redis" : {
          "file" : "lib/Plack/Middleware/Throttle/Lite/Backend/Redis.pm",
-         "version" : "0.01"
+         "version" : "0.02"
       }
    },
    "release_status" : "stable",
@@ -79,7 +79,7 @@
          "web" : "https://github.com/Wu-Wu/Plack-Middleware-Throttle-Lite-Backend-Redis"
       }
    },
-   "version" : "0.01",
+   "version" : "0.02",
    "x_authority" : "cpan:CHIM"
 }
 

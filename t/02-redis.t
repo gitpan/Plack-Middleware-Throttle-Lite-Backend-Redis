@@ -20,7 +20,7 @@ my $appx = sub {
 
     builder {
         enable 'Throttle::Lite', limits => $limits, routes => '/api/user',
-            backend => [ 'Redis' => { server => $default_server } ];
+            backend => [ 'Redis' => { instance => $default_server } ];
         $app;
     };
 };

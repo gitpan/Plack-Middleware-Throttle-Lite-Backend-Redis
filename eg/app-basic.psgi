@@ -53,7 +53,7 @@ and response code will be 503 with content
 
 builder {
     enable 'Throttle::Lite',
-        limits => '5 req/hour', backend => [ 'Redis' => {server => $default_server} ], routes => qr{^/api}i;
+        limits => '5 req/hour', backend => [ 'Redis' => {instance => $default_server} ], routes => qr{^/api}i;
     sub {
         my ($env) = @_;
         my $body;

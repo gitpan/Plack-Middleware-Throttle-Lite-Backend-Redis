@@ -28,7 +28,7 @@ no_index:
 provides:
   Plack::Middleware::Throttle::Lite::Backend::Redis:
     file: lib/Plack/Middleware/Throttle/Lite/Backend/Redis.pm
-    version: 0.01
+    version: 0.02
 requires:
   Carp: 0
   Plack::Middleware::Throttle::Lite: 0.01
@@ -42,5 +42,5 @@ resources:
   bugtracker: https://github.com/Wu-Wu/Plack-Middleware-Throttle-Lite-Backend-Redis/issues
   homepage: https://metacpan.org/release/Plack-Middleware-Throttle-Lite-Backend-Redis
   repository: git://github.com/Wu-Wu/Plack-Middleware-Throttle-Lite-Backend-Redis.git
-version: 0.01
+version: 0.02
 x_authority: cpan:CHIM

@@ -3,7 +3,7 @@ NAME
     backend for Throttle-Lite
 
 VERSION
-    version 0.01
+    version 0.02
 
 DESCRIPTION
     This is implemetation of the storage backend for
@@ -16,7 +16,7 @@ SYNOPSYS
         enable 'Throttle::Lite',
             backend => [
                 'Redis' => {
-                    server   => 'redis.example.com:6379',
+                    instance => 'redis.example.com:6379',
                     database => 1,
                     password => 'VaspUtnuNeQuiHesGapbootsewWeonJadacVebEe'
                 }
@@ -27,16 +27,29 @@ OPTIONS
     should be passed as a hash reference. The following options are
     available to tune it for your needs.
 
-  server
+  instance
     A string consist of a hostname (or an IP address) and port number
-    (delimited with a colon) of the redis-server instance to connect to. You
-    have to point either this one or "sock". Warning! This option has lower
-    priority than "sock".
+    (delimited with a colon) or unix socket path of the redis-server
+    instance to connect to. Not required. Default value is 127.0.0.1:6379.
+    Some usage examples
 
-  sock
-    A unix socket path of the redis-server instance to connect to. You have
-    to point either this one or "server". Warning! This option has higher
-    priority than "server".
+        # tcp/ip redis-servers
+        instance => '';                          # treats as '127.0.0.1:6379'
+        instance => 'TCP:example.com:11230';     # ..as 'example.com:11230'
+        instance => 'tcp:redis.example.org';     # ..as 'redis.example.org:6379'
+        instance => 'redis-db.example.com';      # ..as 'redis-db.example.com:6379'
+        instance => 'tcp:127.0.0.1';             # ..as '127.0.0.1:6379'
+        instance => 'tcp:10.90.90.90:5000';      # ..as '10.90.90.90:5000'
+        instance => '192.168.100.230';           # ..as '192.168.100.230:6379'
+        instance => 'bogus:0'                    # ..as 'bogus:6379' (allowed > 0 and < 65536)
+        instance => 'Inet:172.16.5.4:65000';     # ..as '172.16.5.4:65000'
+        instance => 'bar:-100';                  # ..as 'bar:6379' (allowed > 0 and < 65536)
+        instance => 'baz:70000';                 # ..as 'baz:6379' (allowed > 0 and < 65536) and so on..
+
+        # unix sockets might be passed like this
+        instance => 'Unix:/var/foo/Redis.sock';  # this socket path '/var/foo/Redis.sock'
+        instance => '/bar/tmp/redis/sock';       # ..as '/bar/tmp/redis/sock',
+        instance => 'unix:/var/foo/redis.sock';  # ..as '/var/foo/redis.sock',
 
   database
     A redis-server database number to store throttling data. Not obligatory
