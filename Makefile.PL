@@ -2,7 +2,7 @@
 use strict;
 use warnings;
 
-use 5.010001;
+use 5.008009;
 
 use ExtUtils::MakeMaker 6.30;
 
@@ -12,6 +12,7 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "Redis-driven storage backend for Throttle-Lite",
   "AUTHOR" => "Anton Gerasimov <chim\@cpan.org>",
   "BUILD_REQUIRES" => {
+    "Test::Exception" => 0,
     "Test::More" => "0.98",
     "Test::Pod" => "1.22"
   },
@@ -24,14 +25,13 @@ my %WriteMakefileArgs = (
   "NAME" => "Plack::Middleware::Throttle::Lite::Backend::Redis",
   "PREREQ_PM" => {
     "Carp" => 0,
-    "Plack::Middleware::Throttle::Lite" => "0.01",
+    "Plack::Middleware::Throttle::Lite" => "0.02",
     "Redis" => "1.955",
-    "feature" => 0,
     "parent" => 0,
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.02",
+  "VERSION" => "0.03",
   "test" => {
     "TESTS" => "t/*.t"
   }

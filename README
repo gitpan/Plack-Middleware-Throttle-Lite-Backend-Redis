@@ -3,7 +3,7 @@ NAME
     backend for Throttle-Lite
 
 VERSION
-    version 0.02
+    version 0.03
 
 DESCRIPTION
     This is implemetation of the storage backend for

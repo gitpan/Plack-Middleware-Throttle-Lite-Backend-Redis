@@ -4,7 +4,13 @@ use Plack::Test;
 use Plack::Builder;
 use HTTP::Request::Common;
 use Test::More;
+use Test::Exception;
 use Plack::Middleware::Throttle::Lite::Backend::Redis;
+
+my $redis = eval { Redis->new(server => '127.0.0.1:6379', debug => 0) };
+my $detected = $redis && ref($redis) eq 'Redis' && $redis->ping eq 'PONG';
+
+diag 'Redis-server detected at 127.0.0.1:6379' if $detected;
 
 can_ok 'Plack::Middleware::Throttle::Lite::Backend::Redis', qw(
     redis
@@ -47,9 +53,9 @@ my @instance_inet = (
 
 while (my ($instance, $thru) = splice(@instance_inet, 0, 2)) {
     SKIP: {
-        skip 'travis-ci.org detected', 1 if $ENV{TRAVIS_CI_ORG_BUILD} && $thru =~ m/^127\.0/;
-        eval { $appx->($instance) };
-        like $@, qr|Cannot get redis handle:.*server at $thru|, 'Unable to connect to redis at [' . $instance . ']';
+        skip 'Redis detected', 1 if ($detected || $ENV{TRAVIS_CI_ORG_BUILD}) && $thru =~ m/^127\.0/;
+        throws_ok { $appx->($instance) }
+            qr|Cannot get redis handle:.*$thru|, 'Unable to connect to redis at [' . $instance . ']';
     }
 }
 
@@ -66,8 +72,8 @@ SKIP: {
     skip 'Unix specific test', scalar(@instance_unix) if $^O eq 'MSWin32';
 
     while (my ($instance, $thru) = splice(@instance_unix, 0, 2)) {
-        eval { $appx->($instance) };
-        like $@, qr|Nonexistent.*$thru|, 'Invalid socket parameter exception for [' . $instance . ']';
+        throws_ok { $appx->($instance) }
+            qr|Nonexistent.*$thru|, 'Invalid socket parameter exception for [' . $instance . ']';
     }
 }
 

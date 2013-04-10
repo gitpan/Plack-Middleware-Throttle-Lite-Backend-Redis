@@ -3,6 +3,7 @@ abstract: 'Redis-driven storage backend for Throttle-Lite'
 author:
   - 'Anton Gerasimov <chim@cpan.org>'
 build_requires:
+  Test::Exception: 0
   Test::More: 0.98
   Test::Pod: 1.22
 configure_requires:
@@ -28,19 +29,18 @@ no_index:
 provides:
   Plack::Middleware::Throttle::Lite::Backend::Redis:
     file: lib/Plack/Middleware/Throttle/Lite/Backend/Redis.pm
-    version: 0.02
+    version: 0.03
 requires:
   Carp: 0
-  Plack::Middleware::Throttle::Lite: 0.01
+  Plack::Middleware::Throttle::Lite: 0.02
   Redis: 1.955
-  feature: 0
   parent: 0
-  perl: 5.010001
+  perl: 5.008009
   strict: 0
   warnings: 0
 resources:
   bugtracker: https://github.com/Wu-Wu/Plack-Middleware-Throttle-Lite-Backend-Redis/issues
   homepage: https://metacpan.org/release/Plack-Middleware-Throttle-Lite-Backend-Redis
   repository: git://github.com/Wu-Wu/Plack-Middleware-Throttle-Lite-Backend-Redis.git
-version: 0.02
+version: 0.03
 x_authority: cpan:CHIM
