@@ -8,7 +8,7 @@ use Carp ();
 use parent 'Plack::Middleware::Throttle::Lite::Backend::Abstract';
 use Redis 1.955;
 
-our $VERSION = '0.03'; # VERSION
+our $VERSION = '0.04'; # VERSION
 our $AUTHORITY = 'cpan:CHIM'; # AUTHORITY
 
 __PACKAGE__->mk_attrs(qw(redis rdb));
@@ -51,13 +51,13 @@ sub _parse_instance {
     CHANCE: {
         last CHANCE unless $instance;
 
-        if ($instance =~ m,^(unix:)?(?<socketpath>/.+)$,i) {
-            $params->{thru} = $+{socketpath};
+        if ($instance =~ m,^(unix:)?(/.+)$,i) {
+            $params->{thru} = $2;
             $params->{unix} = 1;
             last CHANCE;
         }
-        if ($instance =~ m,^((tcp|inet):)?(?<srvname>.+)$,i) {
-            my ($server, $port) = ($+{srvname}, undef);
+        if ($instance =~ m,^((tcp|inet):)?(.+)$,i) {
+            my ($server, $port) = ($3, undef);
             ($server, $port)    = split /:/, $server;
             $params->{thru}     = lc($server) . ':' . (($port && ($port > 0 && $port <= 65535)) ? $port : '6379');
         }
@@ -94,7 +94,7 @@ Plack::Middleware::Throttle::Lite::Backend::Redis - Redis-driven storage backend
 
 =head1 VERSION
 
-version 0.03
+version 0.04
 
 =head1 DESCRIPTION
 

@@ -1,6 +1,5 @@
 use strict;
 use warnings;
-use feature ':5.10';
 use Plack::Builder;
 use Plack::Request;
 use Plack::Response;
@@ -40,14 +39,19 @@ Content like
 
 After limit requests will be equal used requests, additional header appears
 
+    Retry-After: 1239
     X-Throttle-Lite-Expire: 1239
     X-Throttle-Lite-Limit: 5
     X-Throttle-Lite-Units: req/hour
     X-Throttle-Lite-Used: 5
 
-and response code will be 503 with content
+and response code will be
 
-    Limit exceeded
+    HTTP/1.0 429 Too Many Requests
+
+with content
+
+    Rate Limit Exceeded
 
 =cut
 
@@ -58,9 +62,11 @@ builder {
         my ($env) = @_;
         my $body;
 
-        given (Plack::Request->new($env)->path_info) {
-            when (qr{^/api/(user|host)}i) { $body = 'API: ' . ucfirst($1)   }
-            default                       { $body = 'Throttle-free request' }
+        if (Plack::Request->new($env)->path_info =~ qr{^/api/(user|host)}i) {
+            $body = 'API: ' . ucfirst($1);
+        }
+        else {
+            $body = 'Throttle-free request';
         }
 
         Plack::Response->new(200, ['Content-Type' => 'text/plain'], $body)->finalize;

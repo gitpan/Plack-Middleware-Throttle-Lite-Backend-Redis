@@ -12,6 +12,9 @@ my %WriteMakefileArgs = (
   "ABSTRACT" => "Redis-driven storage backend for Throttle-Lite",
   "AUTHOR" => "Anton Gerasimov <chim\@cpan.org>",
   "BUILD_REQUIRES" => {
+    "HTTP::Message" => "6.01",
+    "Plack" => "1.0001",
+    "Redis" => "1.955",
     "Test::Exception" => 0,
     "Test::More" => "0.98",
     "Test::Pod" => "1.22"
@@ -31,7 +34,7 @@ my %WriteMakefileArgs = (
     "strict" => 0,
     "warnings" => 0
   },
-  "VERSION" => "0.03",
+  "VERSION" => "0.04",
   "test" => {
     "TESTS" => "t/*.t"
   }
